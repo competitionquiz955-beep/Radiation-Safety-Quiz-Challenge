@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AERB Radiation Safety Quiz Challenge</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0A0F1E;
+    --navy-mid: #0D1426;
+    --navy-card: #111827;
+    --navy-border: #1a2540;
+    --teal: #00E5CC;
+    --teal-dim: #00b8a3;
+    --teal-glow: rgba(0,229,204,0.15);
+    --gold: #FFD166;
+    --gold-dim: #d4a832;
+    --red: #FF4757;
+    --green: #2ed573;
+    --text: #c8d6f0;
+    --text-dim: #6b7fa3;
+    --font-mono: 'Share Tech Mono', monospace;
+    --font-display: 'Orbitron', sans-serif;
+    --font-body: 'Exo 2', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--navy);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+    transition: filter 0.3s ease;
+    position: relative;
+  }
+
+  body.blurred { filter: blur(12px) brightness(0.4); }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,204,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,204,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at 20% 50%, rgba(0,229,204,0.05) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(255,209,102,0.04) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 780px;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ─── HEADER ─── */
+  .header {
+    text-align: center;
+    margin-bottom: 28px;
+    animation: fadeDown 0.8s ease both;
+  }
+
+  .header-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--teal);
+    border: 1px solid rgba(0,229,204,0.3);
+    padding: 4px 14px;
+    border-radius: 2px;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+  }
+
+  .header h1 {
+    font-family: var(--font-display);
+    font-size: clamp(20px, 4vw, 30px);
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 2px;
+    line-height: 1.2;
+    text-shadow: 0 0 30px rgba(0,229,204,0.4);
+  }
+
+  .header h1 span { color: var(--teal); }
+
+  .header-sub {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 8px;
+    letter-spacing: 2px;
+  }
+
+  /* ─── CARD ─── */
+  .card {
+    background: var(--navy-card);
+    border: 1px solid var(--navy-border);
+    border-radius: 4px;
+    padding: 36px 40px;
+    position: relative;
+    box-shadow: 0 0 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+    animation: fadeUp 0.8s ease 0.2s both;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--teal), transparent);
+  }
+
+  /* corner decorations */
+  .corner { position: absolute; width: 14px; height: 14px; }
+  .corner-tl { top: -1px; left: -1px; border-top: 2px solid var(--teal); border-left: 2px solid var(--teal); }
+  .corner-tr { top: -1px; right: -1px; border-top: 2px solid var(--teal); border-right: 2px solid var(--teal); }
+  .corner-bl { bottom: -1px; left: -1px; border-bottom: 2px solid var(--teal); border-left: 2px solid var(--teal); }
+  .corner-br { bottom: -1px; right: -1px; border-bottom: 2px solid var(--teal); border-right: 2px solid var(--teal); }
+
+  /* ─── SCREEN: LANDING ─── */
+  #screen-landing { text-align: center; }
+
+  .aerb-logo {
+    font-family: var(--font-display);
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .aerb-logo::before, .aerb-logo::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim));
+    max-width: 80px;
+  }
+  .aerb-logo::after { background: linear-gradient(90deg, var(--gold-dim), transparent); }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 24px 0;
+  }
+
+  .stat-box {
+    background: rgba(0,229,204,0.05);
+    border: 1px solid rgba(0,229,204,0.15);
+    border-radius: 3px;
+    padding: 14px 10px;
+  }
+
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--teal);
+    display: block;
+  }
+
+  .stat-lbl {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    margin-top: 4px;
+    display: block;
+  }
+
+  .input-group {
+    margin: 28px 0 20px;
+    text-align: left;
+  }
+
+  .input-group label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--teal);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  .input-group input {
+    width: 100%;
+    background: rgba(0,229,204,0.05);
+    border: 1px solid rgba(0,229,204,0.3);
+    border-radius: 3px;
+    padding: 12px 16px;
+    color: #fff;
+    font-family: var(--font-body);
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .input-group input:focus {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(0,229,204,0.1);
+  }
+
+  .input-group input::placeholder { color: var(--text-dim); }
+
+  .rules-list {
+    background: rgba(255,209,102,0.05);
+    border: 1px solid rgba(255,209,102,0.15);
+    border-radius: 3px;
+    padding: 16px 20px;
+    margin: 20px 0;
+    text-align: left;
+  }
+
+  .rules-list .rule-title {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+
+  .rules-list li {
+    font-size: 12px;
+    color: var(--text-dim);
+    list-style: none;
+    padding: 3px 0;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .rules-list li::before { content: '◆'; color: var(--teal); font-size: 8px; margin-top: 3px; flex-shrink: 0; }
+
+  /* ─── BUTTON ─── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 14px 32px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--teal), var(--teal-dim));
+    color: var(--navy);
+    box-shadow: 0 0 20px rgba(0,229,204,0.3);
+    width: 100%;
+    padding: 16px;
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 0 35px rgba(0,229,204,0.5);
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid var(--navy-border);
+    color: var(--text-dim);
+    font-size: 11px;
+  }
+
+  .btn-secondary:hover { border-color: var(--teal); color: var(--teal); }
+
+  .btn-gold {
+    background: linear-gradient(135deg, var(--gold), var(--gold-dim));
+    color: var(--navy);
+    box-shadow: 0 0 20px rgba(255,209,102,0.3);
+  }
+
+  .btn-gold:hover { box-shadow: 0 0 35px rgba(255,209,102,0.5); transform: translateY(-1px); }
+
+  /* ─── QUIZ HUD ─── */
+  .quiz-hud {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .hud-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .q-counter {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+  }
+
+  .q-counter span { color: var(--teal); }
+
+  .diff-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 1px;
+    padding: 2px 8px;
+    border-radius: 2px;
+  }
+
+  .diff-easy { background: rgba(46,213,115,0.15); color: var(--green); border: 1px solid rgba(46,213,115,0.3); }
+  .diff-medium { background: rgba(255,209,102,0.15); color: var(--gold); border: 1px solid rgba(255,209,102,0.3); }
+  .diff-hard { background: rgba(255,71,87,0.15); color: var(--red); border: 1px solid rgba(255,71,87,0.3); }
+
+  /* Timer */
+  .timer-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+  }
+
+  .timer-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+  }
+
+  .timer-display {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--teal);
+    text-shadow: 0 0 15px rgba(0,229,204,0.5);
+    transition: color 0.3s;
+  }
+
+  .timer-display.warn { color: var(--gold); text-shadow: 0 0 15px rgba(255,209,102,0.5); }
+  .timer-display.danger { color: var(--red); text-shadow: 0 0 15px rgba(255,71,87,0.5); animation: pulse 0.5s infinite; }
+
+  /* Progress bar */
+  .progress-track {
+    height: 3px;
+    background: var(--navy-border);
+    border-radius: 2px;
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--teal), var(--teal-dim));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+    box-shadow: 0 0 8px rgba(0,229,204,0.5);
+  }
+
+  /* ─── QUESTION ─── */
+  .question-num {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--teal);
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+
+  .question-text {
+    font-size: 17px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.5;
+    margin-bottom: 24px;
+    min-height: 60px;
+  }
+
+  /* Options */
+  .options-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .option-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--navy-border);
+    border-radius: 3px;
+    padding: 14px 18px;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: left;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    line-height: 1.4;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .option-btn::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 2px;
+    background: var(--teal);
+    transform: scaleY(0);
+    transition: transform 0.18s;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: rgba(0,229,204,0.4);
+    background: var(--teal-glow);
+    color: #fff;
+  }
+
+  .option-btn:hover:not(:disabled)::before { transform: scaleY(1); }
+
+  .option-key {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--teal);
+    background: rgba(0,229,204,0.1);
+    border: 1px solid rgba(0,229,204,0.2);
+    width: 28px;
+    height: 28px;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.18s;
+  }
+
+  .option-btn:hover:not(:disabled) .option-key {
+    background: var(--teal);
+    color: var(--navy);
+  }
+
+  .option-btn.correct {
+    border-color: var(--green);
+    background: rgba(46,213,115,0.1);
+    color: #fff;
+    cursor: default;
+  }
+
+  .option-btn.correct::before { background: var(--green); transform: scaleY(1); }
+  .option-btn.correct .option-key { background: var(--green); color: var(--navy); border-color: var(--green); }
+
+  .option-btn.wrong {
+    border-color: var(--red);
+    background: rgba(255,71,87,0.08);
+    color: var(--text-dim);
+    cursor: default;
+    opacity: 0.7;
+  }
+
+  .option-btn.wrong::before { background: var(--red); transform: scaleY(1); }
+  .option-btn.wrong .option-key { background: var(--red); color: #fff; border-color: var(--red); }
+
+  .option-btn:disabled { cursor: default; }
+
+  /* Feedback */
+  .feedback-box {
+    background: rgba(0,229,204,0.05);
+    border: 1px solid rgba(0,229,204,0.2);
+    border-radius: 3px;
+    padding: 14px 18px;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+    margin-bottom: 20px;
+    display: none;
+  }
+
+  .feedback-box.show { display: block; }
+  .feedback-box .fb-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--teal);
+    margin-bottom: 6px;
+  }
+
+  /* Nav */
+  .quiz-nav {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .btn-next {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 11px 24px;
+    background: linear-gradient(135deg, var(--teal), var(--teal-dim));
+    color: var(--navy);
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    display: none;
+    transition: all 0.2s;
+    box-shadow: 0 0 15px rgba(0,229,204,0.3);
+  }
+
+  .btn-next:hover { box-shadow: 0 0 25px rgba(0,229,204,0.5); transform: translateY(-1px); }
+  .btn-next.show { display: inline-flex; align-items: center; gap: 8px; }
+
+  /* ─── TAB WARNING ─── */
+  .tab-warning {
+    display: none;
+    background: rgba(255,71,87,0.1);
+    border: 1px solid rgba(255,71,87,0.4);
+    border-radius: 3px;
+    padding: 10px 16px;
+    margin-bottom: 16px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--red);
+    letter-spacing: 1px;
+    text-align: center;
+  }
+
+  .tab-warning.show { display: block; }
+
+  /* ─── CERTIFICATE ─── */
+  #screen-result { text-align: center; }
+
+  .cert-container {
+    background: linear-gradient(135deg, #0d1426 0%, #0f1a30 100%);
+    border: 1px solid rgba(255,209,102,0.3);
+    border-radius: 4px;
+    padding: 40px;
+    position: relative;
+    margin-bottom: 24px;
+  }
+
+  .cert-container::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 1px solid rgba(255,209,102,0.1);
+    border-radius: 3px;
+    pointer-events: none;
+  }
+
+  .cert-corner { position: absolute; width: 20px; height: 20px; }
+  .cert-corner-tl { top: 10px; left: 10px; border-top: 2px solid var(--gold); border-left: 2px solid var(--gold); }
+  .cert-corner-tr { top: 10px; right: 10px; border-top: 2px solid var(--gold); border-right: 2px solid var(--gold); }
+  .cert-corner-bl { bottom: 10px; left: 10px; border-bottom: 2px solid var(--gold); border-left: 2px solid var(--gold); }
+  .cert-corner-br { bottom: 10px; right: 10px; border-bottom: 2px solid var(--gold); border-right: 2px solid var(--gold); }
+
+  .cert-badge {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+
+  .cert-title {
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+
+  .cert-name {
+    font-family: var(--font-display);
+    font-size: clamp(22px, 4vw, 32px);
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 20px rgba(255,209,102,0.3);
+    margin-bottom: 20px;
+  }
+
+  .cert-score-ring {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(var(--gold) calc(var(--pct) * 1%), var(--navy-border) 0%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    position: relative;
+  }
+
+  .cert-score-ring::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    background: var(--navy-card);
+    border-radius: 50%;
+  }
+
+  .cert-score-inner {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+  }
+
+  .cert-score-num {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--gold);
+    display: block;
+    line-height: 1;
+  }
+
+  .cert-score-den {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  .cert-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 20px 0;
+  }
+
+  .cert-stat { text-align: center; }
+  .cert-stat-val {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    display: block;
+  }
+
+  .cert-stat-lbl {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    margin-top: 2px;
+    display: block;
+  }
+
+  .cert-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,209,102,0.3), transparent);
+    margin: 20px 0;
+  }
+
+  .cert-footer {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+
+  .cert-id {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: rgba(255,209,102,0.5);
+    margin-top: 8px;
+  }
+
+  .result-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .aerb-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--teal);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(0,229,204,0.3);
+    transition: color 0.2s;
+    margin-top: 16px;
+  }
+
+  .aerb-link:hover { color: #fff; }
+
+  /* ─── OVERLAY / BLUR SCREEN ─── */
+  #blur-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(10,15,30,0.95);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  #blur-overlay.show { display: flex; }
+
+  .overlay-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+
+  .overlay-title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--red);
+    margin-bottom: 10px;
+  }
+
+  .overlay-sub {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .q-animate { animation: slideIn 0.3s ease both; }
+
+  /* ─── SCORE BREAKDOWN ─── */
+  .breakdown {
+    background: rgba(0,229,204,0.03);
+    border: 1px solid var(--navy-border);
+    border-radius: 3px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    text-align: left;
+  }
+
+  .breakdown-title {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--teal);
+    margin-bottom: 12px;
+  }
+
+  .breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 13px;
+  }
+
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-row .label { color: var(--text-dim); }
+  .breakdown-row .value { font-family: var(--font-mono); font-weight: 600; }
+  .v-correct { color: var(--green); }
+  .v-wrong { color: var(--red); }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .card { padding: 24px 20px; }
+    .stats-row { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .cert-stats { grid-template-columns: repeat(3, 1fr); }
+    .result-actions { flex-direction: column; }
+    .result-actions .btn { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Blur overlay when window loses focus -->
+<div id="blur-overlay">
+  <div class="overlay-icon">🔒</div>
+  <div class="overlay-title">EXAM PAUSED</div>
+  <div class="overlay-sub">Click anywhere to resume your session</div>
+</div>
+
+<div class="container">
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-badge">☢ AERB CERTIFIED · INDIA</div>
+    <h1>RADIATION SAFETY<br><span>QUIZ CHALLENGE</span></h1>
+    <div class="header-sub">ATOMIC ENERGY REGULATORY BOARD · 2025</div>
+  </div>
+
+  <!-- CARD -->
+  <div class="card">
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+
+    <!-- ── SCREEN: LANDING ── -->
+    <div id="screen-landing">
+      <div class="aerb-logo">AERB INDIA</div>
+
+      <div class="stats-row">
+        <div class="stat-box">
+          <span class="stat-num">15</span>
+          <span class="stat-lbl">QUESTIONS</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-num">5:00</span>
+          <span class="stat-lbl">MINUTES</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-num">3</span>
+          <span class="stat-lbl">DIFFICULTY LEVELS</span>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Your Full Name</label>
+        <input type="text" id="participant-name" placeholder="Enter your name to begin..." autocomplete="off" maxlength="60">
+      </div>
+
+      <div class="rules-list">
+        <div class="rule-title">⚡ Exam Protocol</div>
+        <ul>
+          <li>15 questions — 5 Easy, 5 Medium, 5 Hard — from AERB guidelines</li>
+          <li>5-minute countdown. Quiz auto-submits at zero.</li>
+          <li>Answers are locked in once selected. No changes allowed.</li>
+          <li>Switching tabs 3+ times triggers a warning; 4th switch auto-submits.</li>
+          <li>Window blur activates security blur. Right-click and copy are disabled.</li>
+          <li>Official AERB PDF auto-downloads upon quiz completion.</li>
+        </ul>
+      </div>
+
+      <button class="btn btn-primary" onclick="startQuiz()">
+        INITIATE EXAM SESSION →
+      </button>
+    </div>
+
+    <!-- ── SCREEN: QUIZ ── -->
+    <div id="screen-quiz" style="display:none;">
+      <div id="tab-warning" class="tab-warning"></div>
+
+      <div class="quiz-hud">
+        <div class="hud-left">
+          <div class="q-counter">QUESTION <span id="q-num">1</span> OF <span>15</span></div>
+          <div id="diff-badge" class="diff-badge diff-easy">EASY</div>
+        </div>
+        <div class="timer-wrap">
+          <div class="timer-label">TIME REMAINING</div>
+          <div class="timer-display" id="timer-display">05:00</div>
+        </div>
+      </div>
+
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+
+      <div class="q-animate" id="q-content">
+        <div class="question-num" id="question-num">Q01 ·</div>
+        <div class="question-text" id="question-text"></div>
+        <div class="options-grid" id="options-grid"></div>
+        <div class="feedback-box" id="feedback-box">
+          <div class="fb-label">◆ EXPLANATION</div>
+          <div id="feedback-text"></div>
+        </div>
+        <div class="quiz-nav">
+          <button class="btn-next" id="btn-next" onclick="nextQuestion()">
+            NEXT <span>›</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SCREEN: RESULT ── -->
+    <div id="screen-result" style="display:none;">
+      <div class="cert-container" id="cert-div">
+        <div class="cert-corner cert-corner-tl"></div>
+        <div class="cert-corner cert-corner-tr"></div>
+        <div class="cert-corner cert-corner-bl"></div>
+        <div class="cert-corner cert-corner-br"></div>
+
+        <div class="cert-badge">☢ DIGITAL CERTIFICATE OF EXCELLENCE · AERB 2025</div>
+        <div class="cert-title">THIS IS TO CERTIFY THAT</div>
+        <div class="cert-name" id="cert-name"></div>
+
+        <div class="cert-score-ring" id="score-ring">
+          <div class="cert-score-inner">
+            <span class="cert-score-num" id="cert-score-num">0</span>
+            <span class="cert-score-den">/15</span>
+          </div>
+        </div>
+
+        <div class="cert-stats">
+          <div class="cert-stat">
+            <span class="cert-stat-val" id="cert-pct" style="color:var(--gold)">0%</span>
+            <span class="cert-stat-lbl">SCORE</span>
+          </div>
+          <div class="cert-stat">
+            <span class="cert-stat-val" id="cert-percentile" style="color:var(--teal)">—</span>
+            <span class="cert-stat-lbl">PERCENTILE</span>
+          </div>
+          <div class="cert-stat">
+            <span class="cert-stat-val" id="cert-grade" style="color:var(--green)">—</span>
+            <span class="cert-stat-lbl">GRADE</span>
+          </div>
+        </div>
+
+        <div class="cert-divider"></div>
+
+        <div class="breakdown">
+          <div class="breakdown-title">◆ SCORE BREAKDOWN</div>
+          <div class="breakdown-row"><span class="label">Correct Answers</span><span class="value v-correct" id="bd-correct">0</span></div>
+          <div class="breakdown-row"><span class="label">Wrong Answers</span><span class="value v-wrong" id="bd-wrong">0</span></div>
+          <div class="breakdown-row"><span class="label">Unanswered</span><span class="value" style="color:var(--text-dim)" id="bd-unanswered">0</span></div>
+          <div class="breakdown-row"><span class="label">Time Taken</span><span class="value" style="color:var(--teal)" id="bd-time">—</span></div>
+        </div>
+
+        <div class="cert-footer">
+          HAS SUCCESSFULLY COMPLETED THE AERB RADIATION SAFETY QUIZ CHALLENGE<br>
+          BASED ON AERB RADIATION PROTECTION PRINCIPLES · ATOMIC ENERGY ACT, 1962
+        </div>
+        <div class="cert-id" id="cert-id"></div>
+      </div>
+
+      <div class="result-actions">
+        <button class="btn btn-gold" onclick="downloadPDF()">
+          ⬇ RE-DOWNLOAD AERB GUIDELINES
+        </button>
+        <button class="btn btn-primary" onclick="location.reload()">
+          ↺ RETAKE QUIZ
+        </button>
+      </div>
+
+      <div style="text-align:center; margin-top:16px;">
+        <a href="https://www.aerb.gov.in/english/radiation-protection-principle" target="_blank" class="aerb-link">
+          ↗ AERB Official Radiation Protection Principles
+        </a>
+      </div>
+      <div style="text-align:center; margin-top:8px;">
+        <a href="https://elora.aerb.gov.in" target="_blank" class="aerb-link">
+          ↗ eLORA Licensing Portal · aerb.gov.in
+        </a>
+      </div>
+    </div>
+
+  </div><!-- /card -->
+</div><!-- /container -->
+
+<script>
+// ══════════════════════════════════════════════════
+// SECURITY: Disable right-click, copy, select
+// ══════════════════════════════════════════════════
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('copy', e => e.preventDefault());
+document.addEventListener('selectstart', e => e.preventDefault());
+
+// ══════════════════════════════════════════════════
+// QUESTION BANK — 15 questions from AERB guidelines
+// ══════════════════════════════════════════════════
+const QUESTIONS_RAW = [
+  // ── EASY (5) ──
+  {
+    difficulty: 'easy',
+    text: 'What does ALARA stand for in radiation protection?',
+    options: [
+      'As Low As Reasonably Achievable',
+      'As Limited As Regulatory Allowed',
+      'Atomic Level And Radiation Audit',
+      'As Low As Radiologically Acceptable'
+    ],
+    answer: 0,
+    explanation: 'ALARA — "As Low As Reasonably Achievable" — is the core optimisation principle mandated by AERB. All doses to occupational workers and patients shall be kept ALARA using suitable control measures.'
+  },
+  {
+    difficulty: 'easy',
+    text: 'What is the annual occupational effective dose limit for radiation workers in India, as mandated by AERB?',
+    options: [
+      '50 mSv/year',
+      '20 mSv/year averaged over 5 years',
+      '100 mSv/year',
+      '5 mSv/year'
+    ],
+    answer: 1,
+    explanation: 'AERB mandates 20 mSv/year averaged over any consecutive 5 years, with a maximum of 30 mSv in any single year. A well-protected RT typically accumulates <2 mSv/year.'
+  },
+  {
+    difficulty: 'easy',
+    text: 'According to the Inverse Square Law, if you double your distance from a radiation source, the dose rate becomes:',
+    options: [
+      'Half (1/2) of the original',
+      'One quarter (1/4) of the original',
+      'One eighth (1/8) of the original',
+      'Unchanged'
+    ],
+    answer: 1,
+    explanation: 'The Inverse Square Law states: I₁d₁² = I₂d₂². Doubling the distance (2×) causes the intensity to drop to 1/4 (25%) of the original value. Two steps back = fundamentally different risk profile.'
+  },
+  {
+    difficulty: 'easy',
+    text: 'What type of personal dosimeter is worn by radiation workers as mandated by AERB?',
+    options: [
+      'Geiger-Müller counter',
+      'TLD (Thermoluminescent Dosimeter) badge',
+      'Ionisation chamber',
+      'Scintillation detector'
+    ],
+    answer: 1,
+    explanation: 'All radiation workers must wear TLD (Thermoluminescent Dosimeter) badges. For Category A workers (likely to receive >6 mSv/year), badges must be exchanged monthly and dose records reported to AERB\'s National Dose Registry System (NRDS).'
+  },
+  {
+    difficulty: 'easy',
+    text: 'What is the average natural background radiation dose absorbed by every human on Earth per year?',
+    options: [
+      '0.02 mSv/year',
+      '1 mSv/year',
+      '2.4 mSv/year',
+      '8 mSv/year'
+    ],
+    answer: 2,
+    explanation: 'Natural background radiation from soil, food, cosmic rays, and radon amounts to ~2.4 mSv/year globally. For context, a single chest X-ray delivers only 0.02 mSv — 120 times less than annual background exposure.'
+  },
+
+  // ── MEDIUM (5) ──
+  {
+    difficulty: 'medium',
+    text: 'AERB\'s three fundamental radiation protection principles are Justification, Optimisation, and:',
+    options: [
+      'Documentation',
+      'Dose Limitation',
+      'Decontamination',
+      'Dose Measurement'
+    ],
+    answer: 1,
+    explanation: 'The three AERB/ICRP principles are: (1) Justification — no practice should proceed unless benefit outweighs harm; (2) Optimisation (ALARA); and (3) Dose Limitation — normal exposure must be kept below legally prescribed limits. Unlicensed operation is a criminal offence under the Atomic Energy Act, 1962.'
+  },
+  {
+    difficulty: 'medium',
+    text: 'What is the AERB annual equivalent dose limit for the lens of the eye for occupational workers?',
+    options: [
+      '20 mSv/year',
+      '50 mSv/year',
+      '150 mSv/year',
+      '500 mSv/year'
+    ],
+    answer: 2,
+    explanation: 'AERB prescribes 150 mSv/year equivalent dose for the lens of the eye for occupational workers. The skin and extremities (hands and feet) have a higher limit of 500 mSv/year, while the whole-body effective dose limit is 20 mSv/year averaged over 5 years.'
+  },
+  {
+    difficulty: 'medium',
+    text: 'According to AERB, a "Category A" radiation worker is defined as one likely to receive more than:',
+    options: [
+      '1 mSv/year',
+      '3 mSv/year',
+      '6 mSv/year',
+      '20 mSv/year'
+    ],
+    answer: 2,
+    explanation: 'Category A workers are those likely to receive >6 mSv/year (i.e., >3/10 of the annual limit of 20 mSv). They require monthly TLD badge exchange and annual medical examination. Category B workers (1–6 mSv/year) require only quarterly badge exchange.'
+  },
+  {
+    difficulty: 'medium',
+    text: 'What is the annual public effective dose limit according to AERB guidelines?',
+    options: [
+      '5 mSv/year',
+      '1 mSv/year',
+      '0.1 mSv/year',
+      '20 mSv/year'
+    ],
+    answer: 1,
+    explanation: 'AERB mandates a public effective dose limit of 1 mSv/year — 20 times lower than the occupational whole-body limit. For the lens of the eye, the public limit is 15 mSv/year, and for skin it is 50 mSv/year.'
+  },
+  {
+    difficulty: 'medium',
+    text: 'The mathematical formula for shielding attenuation according to AERB guidelines is:',
+    options: [
+      'I = I₀ × (µ/t)',
+      'I = I₀ × e^(−µt)',
+      'I = I₀ / (µ × t)',
+      'I = I₀ × ln(µt)'
+    ],
+    answer: 1,
+    explanation: 'The shielding formula is I = I₀ × e^(−µt), where µ is the linear attenuation coefficient of the shielding material and t is the thickness. High-Z materials like Lead (Pb), steel, and concrete are recommended. A 0.5mm Pb equivalent apron attenuates 90%+ of scatter radiation at diagnostic energy levels.'
+  },
+
+  // ── HARD (5) ──
+  {
+    difficulty: 'hard',
+    text: 'A radiation worker\'s dose rate at 1 metre from a source is 40 mSv/hour. Using the Inverse Square Law (I₁d₁² = I₂d₂²), what is the dose rate at 4 metres?',
+    options: [
+      '10 mSv/hour',
+      '5 mSv/hour',
+      '2.5 mSv/hour',
+      '20 mSv/hour'
+    ],
+    answer: 2,
+    explanation: 'Using I₁d₁² = I₂d₂²: 40 × 1² = I₂ × 4². Therefore I₂ = 40/16 = 2.5 mSv/hour. The dose rate falls to 1/16th at 4× the distance, demonstrating why maximising distance is a cardinal protection strategy.'
+  },
+  {
+    difficulty: 'hard',
+    text: 'Under AERB regulations, what is the maximum dose limit to the embryo/foetus for the ENTIRE pregnancy of a declared pregnant radiation worker?',
+    options: [
+      '5 mSv',
+      '20 mSv',
+      '1 mSv',
+      '0.5 mSv'
+    ],
+    answer: 2,
+    explanation: 'AERB mandates a total embryo/foetus dose limit of 1 mSv for the entire pregnancy — the strictest occupational dose limit in the AERB framework. This is equal to the annual public dose limit, reflecting the critical importance of protecting the developing foetus.'
+  },
+  {
+    difficulty: 'hard',
+    text: 'All diagnostic X-ray facilities and radiation workers in India must register with AERB through which portal?',
+    options: [
+      'BARC Online Portal',
+      'eLORA portal (elora.aerb.gov.in)',
+      'NRDS National Registry',
+      'MoHFW Health Portal'
+    ],
+    answer: 1,
+    explanation: 'AERB mandates registration through the eLORA portal (elora.aerb.gov.in). This applies to all diagnostic X-ray facilities, CT scanners, fluoroscopy units, and radiation workers. Unlicensed operation of radiation equipment is a criminal offence under the Atomic Energy Act, 1962. AERB was established in 1983 under this Act.'
+  },
+  {
+    difficulty: 'hard',
+    text: 'A worker is exposed at 2 mSv/hour for 30 minutes, then moves to 4 metres (original distance was 1 metre) for the next 30 minutes. What is the TOTAL dose received?',
+    options: [
+      '1.125 mSv',
+      '1.0625 mSv',
+      '2.0 mSv',
+      '0.5 mSv'
+    ],
+    answer: 1,
+    explanation: 'Dose 1: 2 mSv/hr × 0.5 hr = 1 mSv. At 4m distance: I₂ = 2 × (1/4)² = 2/16 = 0.125 mSv/hr. Dose 2: 0.125 mSv/hr × 0.5 hr = 0.0625 mSv. Total = 1 + 0.0625 = 1.0625 mSv. This demonstrates how combining Time and Distance (TDS) dramatically reduces cumulative dose.'
+  },
+  {
+    difficulty: 'hard',
+    text: 'Under the principle of Justification (first AERB principle), which statement is CORRECT?',
+    options: [
+      'Radiation practices are always justified if the technology is approved by AERB',
+      'A practice must NOT proceed if radiation harm outweighs benefit to individuals or society',
+      'Justification only applies to nuclear power plants, not diagnostic radiology',
+      'Dose limits alone are sufficient to ensure Justification is met'
+    ],
+    answer: 1,
+    explanation: 'Justification requires that no practice or source shall be authorised unless it produces sufficient benefit to the exposed individuals or to society to OFFSET the radiation harm. Social, economic, and other relevant factors must all be considered. If a practice cannot be justified, it must NOT proceed — this is the ethical foundation of the ICRP/AERB framework.'
+  }
+];
+
+// ══════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════
+let questions = [];
+let currentQ = 0;
+let score = 0;
+let correct = 0;
+let wrong = 0;
+let unanswered = 0;
+let answered = new Array(15).fill(null); // null | true | false
+let timerInterval = null;
+let timeLeft = 300;
+let startTime = null;
+let tabSwitchCount = 0;
+let quizActive = false;
+let participantName = '';
+
+// ──────────────────────────────────────────────────
+// Fisher-Yates Shuffle
+// ──────────────────────────────────────────────────
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function prepareQuestions() {
+  const easy = shuffle(QUESTIONS_RAW.filter(q => q.difficulty === 'easy'));
+  const medium = shuffle(QUESTIONS_RAW.filter(q => q.difficulty === 'medium'));
+  const hard = shuffle(QUESTIONS_RAW.filter(q => q.difficulty === 'hard'));
+  const ordered = [...easy, ...medium, ...hard];
+
+  // Shuffle options for each question
+  questions = ordered.map(q => {
+    const idxMap = [0,1,2,3];
+    const shuffledIdx = shuffle(idxMap);
+    const newOptions = shuffledIdx.map(i => q.options[i]);
+    const newAnswer = shuffledIdx.indexOf(q.answer);
+    return { ...q, options: newOptions, answer: newAnswer };
+  });
+}
+
+// ══════════════════════════════════════════════════
+// SECURITY: Tab Switch Monitor
+// ══════════════════════════════════════════════════
+document.addEventListener('visibilitychange', () => {
+  if (!quizActive) return;
+  if (document.hidden) {
+    tabSwitchCount++;
+    const warn = document.getElementById('tab-warning');
+    if (tabSwitchCount >= 4) {
+      warn.textContent = '🚨 SECURITY VIOLATION: Multiple tab switches detected. Quiz auto-submitted.';
+      warn.classList.add('show');
+      submitQuiz();
+    } else if (tabSwitchCount === 3) {
+      warn.textContent = `⚠ WARNING: ${tabSwitchCount}/3 tab switches detected. Next switch will AUTO-SUBMIT the quiz.`;
+      warn.classList.add('show');
+    } else {
+      warn.textContent = `⚠ Tab switch detected (${tabSwitchCount}/3). Leaving tab may forfeit your exam.`;
+      warn.classList.add('show');
+    }
+  }
+});
+
+// ══════════════════════════════════════════════════
+// SECURITY: Window Focus / Blur
+// ══════════════════════════════════════════════════
+window.onblur = () => {
+  if (!quizActive) return;
+  document.body.classList.add('blurred');
+  document.getElementById('blur-overlay').classList.add('show');
+};
+
+window.onfocus = () => {
+  document.body.classList.remove('blurred');
+  document.getElementById('blur-overlay').classList.remove('show');
+};
+
+document.getElementById('blur-overlay').addEventListener('click', () => {
+  document.body.classList.remove('blurred');
+  document.getElementById('blur-overlay').classList.remove('show');
+});
+
+// ══════════════════════════════════════════════════
+// TIMER
+// ══════════════════════════════════════════════════
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+}
+
+function startTimer() {
+  const display = document.getElementById('timer-display');
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    display.textContent = formatTime(timeLeft);
+    if (timeLeft <= 30) {
+      display.classList.add('danger');
+      display.classList.remove('warn');
+    } else if (timeLeft <= 60) {
+      display.classList.add('warn');
+    }
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      submitQuiz();
+    }
+  }, 1000);
+}
+
+// ══════════════════════════════════════════════════
+// START QUIZ
+// ══════════════════════════════════════════════════
+function startQuiz() {
+  const nameInput = document.getElementById('participant-name');
+  participantName = nameInput.value.trim();
+  if (!participantName) {
+    nameInput.focus();
+    nameInput.style.borderColor = 'var(--red)';
+    nameInput.style.boxShadow = '0 0 0 3px rgba(255,71,87,0.15)';
+    setTimeout(() => {
+      nameInput.style.borderColor = '';
+      nameInput.style.boxShadow = '';
+    }, 1200);
+    return;
+  }
+
+  prepareQuestions();
+  answered = new Array(15).fill(null);
+  currentQ = 0;
+  score = 0;
+  correct = 0;
+  wrong = 0;
+  tabSwitchCount = 0;
+  timeLeft = 300;
+  startTime = Date.now();
+  quizActive = true;
+
+  document.getElementById('screen-landing').style.display = 'none';
+  document.getElementById('screen-quiz').style.display = 'block';
+
+  renderQuestion();
+  startTimer();
+}
+
+// ══════════════════════════════════════════════════
+// RENDER QUESTION
+// ══════════════════════════════════════════════════
+function renderQuestion() {
+  const q = questions[currentQ];
+  const content = document.getElementById('q-content');
+  content.classList.remove('q-animate');
+  void content.offsetWidth; // reflow
+  content.classList.add('q-animate');
+
+  document.getElementById('q-num').textContent = currentQ + 1;
+  document.getElementById('question-num').textContent = `Q${String(currentQ+1).padStart(2,'0')} ·`;
+  document.getElementById('question-text').textContent = q.text;
+
+  // Difficulty badge
+  const badge = document.getElementById('diff-badge');
+  badge.textContent = q.difficulty.toUpperCase();
+  badge.className = `diff-badge diff-${q.difficulty}`;
+
+  // Progress
+  document.getElementById('progress-fill').style.width = `${(currentQ / 15) * 100}%`;
+
+  // Options
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  const keys = ['A','B','C','D'];
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="option-key">${keys[i]}</span><span>${opt}</span>`;
+    btn.addEventListener('click', () => selectOption(i, btn));
+    grid.appendChild(btn);
+  });
+
+  // Reset feedback & next
+  const fb = document.getElementById('feedback-box');
+  fb.classList.remove('show');
+  const next = document.getElementById('btn-next');
+  next.classList.remove('show');
+}
+
+// ══════════════════════════════════════════════════
+// SELECT OPTION
+// ══════════════════════════════════════════════════
+function selectOption(selectedIdx, clickedBtn) {
+  if (answered[currentQ] !== null) return; // locked
+
+  const q = questions[currentQ];
+  const buttons = document.querySelectorAll('.option-btn');
+
+  // Disable all
+  buttons.forEach(b => b.disabled = true);
+
+  if (selectedIdx === q.answer) {
+    clickedBtn.classList.add('correct');
+    answered[currentQ] = true;
+    correct++;
+  } else {
+    clickedBtn.classList.add('wrong');
+    buttons[q.answer].classList.add('correct');
+    answered[currentQ] = false;
+    wrong++;
+  }
+
+  // Show explanation
+  const fb = document.getElementById('feedback-box');
+  document.getElementById('feedback-text').textContent = q.explanation;
+  fb.classList.add('show');
+
+  // Show next
+  const next = document.getElementById('btn-next');
+  next.textContent = currentQ === 14 ? 'SUBMIT QUIZ ✓' : 'NEXT ›';
+  next.classList.add('show');
+}
+
+// ══════════════════════════════════════════════════
+// NEXT QUESTION
+// ══════════════════════════════════════════════════
+function nextQuestion() {
+  if (currentQ === 14) {
+    submitQuiz();
+    return;
+  }
+  currentQ++;
+  renderQuestion();
+}
+
+// ══════════════════════════════════════════════════
+// SUBMIT
+// ══════════════════════════════════════════════════
+function submitQuiz() {
+  clearInterval(timerInterval);
+  quizActive = false;
+
+  // Count unanswered
+  unanswered = answered.filter(a => a === null).length;
+  const timeTaken = Math.round((Date.now() - startTime) / 1000);
+  const pct = Math.round((correct / 15) * 100);
+
+  // Simulated percentile
+  let percentile;
+  if (pct >= 93) percentile = '99th';
+  else if (pct >= 80) percentile = '90th';
+  else if (pct >= 67) percentile = '75th';
+  else if (pct >= 53) percentile = '60th';
+  else if (pct >= 40) percentile = '45th';
+  else percentile = '25th';
+
+  // Grade
+  let grade;
+  if (pct >= 90) grade = 'A+';
+  else if (pct >= 80) grade = 'A';
+  else if (pct >= 70) grade = 'B+';
+  else if (pct >= 60) grade = 'B';
+  else if (pct >= 50) grade = 'C';
+  else grade = 'F';
+
+  // Switch screens
+  document.getElementById('screen-quiz').style.display = 'none';
+  const result = document.getElementById('screen-result');
+  result.style.display = 'block';
+
+  // Populate certificate
+  document.getElementById('cert-name').textContent = participantName;
+  document.getElementById('cert-score-num').textContent = correct;
+  document.getElementById('cert-pct').textContent = pct + '%';
+  document.getElementById('cert-percentile').textContent = percentile;
+  document.getElementById('cert-grade').textContent = grade;
+
+  // Score ring CSS custom property
+  document.getElementById('score-ring').style.setProperty('--pct', pct);
+
+  // Breakdown
+  document.getElementById('bd-correct').textContent = correct;
+  document.getElementById('bd-wrong').textContent = wrong;
+  document.getElementById('bd-unanswered').textContent = unanswered;
+  document.getElementById('bd-time').textContent = formatTime(timeTaken);
+
+  // Certificate ID
+  const certId = 'AERB-RSQ-' + Date.now().toString(36).toUpperCase();
+  document.getElementById('cert-id').textContent = 'Certificate ID: ' + certId;
+
+  // Auto-download PDF
+  setTimeout(() => downloadPDF(), 1200);
+}
+
+// ══════════════════════════════════════════════════
+// PDF DOWNLOAD
+// ══════════════════════════════════════════════════
+function downloadPDF() {
+  // Try to download from the uploaded file path
+  // Since this is a self-contained HTML, we create a link pointing to the AERB PDF
+  // The file path is available at the user's upload location
+  const link = document.createElement('a');
+
+  // Attempt to reference the uploaded PDF
+  // In a deployed scenario with the file co-located:
+  link.href = 'AERB_RADIATION_SAFETY_GUIDELINES.pdf';
+  link.download = 'AERB_Radiation_Safety_Guidelines_Official.pdf';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  // Fallback: open the official AERB page if the file isn't accessible
+  setTimeout(() => {
+    // Show a friendly note
+    const note = document.createElement('div');
+    note.style.cssText = 'text-align:center;margin-top:10px;font-family:var(--font-mono);font-size:10px;color:var(--text-dim);letter-spacing:1px;';
+    note.innerHTML = '✓ Download triggered. If the file didn\'t save, <a href="https://www.aerb.gov.in" target="_blank" style="color:var(--teal);">visit aerb.gov.in</a> for official guidelines.';
+    const resultActions = document.querySelector('.result-actions');
+    if (resultActions && !document.getElementById('dl-note')) {
+      note.id = 'dl-note';
+      resultActions.after(note);
+    }
+  }, 1500);
+}
+</script>
+</body>
+</html>
